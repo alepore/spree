@@ -2,16 +2,12 @@ require 'spec_helper'
 
 describe 'products', :caching => true do
   let!(:product) { create(:product) }
-  let!(:taxonomy) { create(:taxonomy) }
-  let!(:taxon) { create(:taxon, :taxonomy => taxonomy) }
 
   before do
     # warm up the cache
     visit spree.root_path
     assert_written_to_cache("views/USD/spree/products/all--#{product.updated_at.utc.to_s(:number)}")
     assert_written_to_cache("views/USD/spree/products/#{product.id}-#{product.updated_at.utc.to_s(:number)}")
-    assert_written_to_cache("views/spree/taxonomies/#{taxonomy.id}")
-    assert_written_to_cache("views/taxons/#{taxon.updated_at.utc.to_i}")
 
     clear_cache_events
   end
