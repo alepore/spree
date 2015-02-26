@@ -249,7 +249,8 @@ module Spree
       end
 
       def punch_permalink
-        update_attribute :permalink, "#{Time.now.to_i}_#{permalink}" # punch permalink with date prefix
+        # punch permalink with date prefix
+        update_attribute :permalink, "#{Time.now.to_i}_#{permalink}" unless frozen?
       end
   end
 end
