@@ -12,3 +12,7 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6/html5shiv.min.js"></script>
 <![endif]-->
 <%= yield :head %>
+
+<%= javascript_tag do %>
+  Spree.locale = "<%= I18n.locale %>";
+<% end %>
