@@ -13,7 +13,8 @@ module Spree
     has_many :promotion_actions, autosave: true, dependent: :destroy
     alias_method :actions, :promotion_actions
 
-    has_and_belongs_to_many :orders, join_table: 'spree_orders_promotions'
+    has_many :order_promotions, class_name: 'Spree::OrderPromotion'
+    has_many :orders, through: :order_promotions, class_name: 'Spree::Order'
 
     accepts_nested_attributes_for :promotion_actions, :promotion_rules
 
@@ -27,10 +28,12 @@ module Spree
     before_save :normalize_blank_values
 
     scope :coupons, ->{ where("#{table_name}.code IS NOT NULL") }
-
-    order_join_table = reflect_on_association(:orders).join_table
-
-    scope :applied, -> { joins("INNER JOIN #{order_join_table} ON #{order_join_table}.promotion_id = #{table_name}.id").uniq }
+    scope :applied, lambda {
+      joins(<<-SQL).uniq
+        INNER JOIN spree_order_promotions
+        ON spree_order_promotions.promotion_id = #{table_name}.id
+      SQL
+    }
 
     self.whitelisted_ransackable_attributes = ['code', 'path', 'promotion_category_id']
 
@@ -39,7 +42,7 @@ module Spree
     end
 
     def self.with_coupon_code(coupon_code)
-      where("lower(#{self.table_name}.code) = ?", coupon_code.strip.downcase).first
+      where("lower(#{table_name}.code) = ?", coupon_code.strip.downcase).first
     end
 
     def self.active
